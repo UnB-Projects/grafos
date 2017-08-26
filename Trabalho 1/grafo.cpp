@@ -57,6 +57,18 @@ vector<string> leitura_arquivo() {
   return linhas;
 }
 
+void adicionaVertice(vector<Vertice> &g, string ch, int i) {
+  g[i].pk = atoi(ch.c_str());
+}
+
+void adicionaAresta(vector<Vertice> &g, string ch, int i) {
+  g[i].amigos.push_back(atoi(ch.c_str()));
+}
+
+void adicionaNome(vector<Vertice> &g, string ch, int i) {
+  g[i].Nome = ch;
+}
+
 int main () {
   vector<Vertice> g(MAX);
   vector<string> linhas(50);  
@@ -73,17 +85,19 @@ int main () {
       }
       else if (linhas[i][j] == ' ') { 
         if (j <= 2) { //Eh um dos digitos identificadores
-          g[i].pk = atoi(ch.c_str());
+          adicionaVertice(g, ch, i);
         }
         else if (ch.compare("0") != 0) { //Se o identificador numerico nao for de zero amigos
-          g[i].amigos.push_back(atoi(ch.c_str()));
+          adicionaAresta(g, ch, i);
         }
-        ch.clear(); //Limpa para ser usado no proximo loop
+        ch.clear();
       }
       else if (linhas[i][j] >= 'A' && linhas[i][j] <= 'Z') { // Se for caractere
         for (k = j; k <(int)linhas[i].size(); k++) {
-          g[i].Nome.push_back(linhas[i][k]);
+          ch.push_back(linhas[i][k]);
         }
+        adicionaNome(g, ch, i);
+        ch.clear();
         j = k;
       }
     }
