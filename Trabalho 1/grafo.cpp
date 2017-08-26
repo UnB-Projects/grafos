@@ -115,8 +115,14 @@ void montaGrafo(Grafo &g) {
 }
 
 void mostraGrafoDecrescente(Grafo g) {
+  int i;
+
   sort(g.begin(), g.end(), comparaAmigos);
-  mostra_grafo(g);
+  for (i = 0; i < (int)g.size(); i++) {
+    cout << "Vertice: " << setw(2) <<  g[i].pk << " " 
+         << "Grau: "    << setw(2) << g[i].amigos.size() << endl;
+  }
+
 }
 
 int main () {
