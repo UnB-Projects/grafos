@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+
 #define MAX 49
 
 typedef pair<int,int> ii;
@@ -71,8 +72,7 @@ void adicionaNome(Grafo &g, string ch, int i) {
   g[i].Nome = ch;
 }
 
-int main () {
-  Grafo g(MAX);
+void montaGrafo(Grafo &g) {
   vector<string> linhas(50);  
   int i, j, k, size;
   string ch;
@@ -104,5 +104,11 @@ int main () {
       }
     }
   }
+}
+
+int main () {
+  Grafo g(MAX);
+
+  montaGrafo(g);
   mostra_grafo(g);
 }
