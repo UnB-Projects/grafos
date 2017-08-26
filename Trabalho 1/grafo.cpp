@@ -10,23 +10,25 @@ typedef vector<int> vi;
 typedef struct Vertice {
   string Nome;
   int pk;
-  vector<int> parentes;
+  vector<int> amigos;
 }t_Vertice;
 
 void mostra_grafo(vector<Vertice> g) {
-  int size = g.size(),size2,i,j;
+  int size = g.size();
+  int size2;
+  int i, j;
 
   for (i = 0; i < size; i++) {
-    size2 = g[i].parentes.size();
+    size2 = g[i].amigos.size();
     cout << g[i].pk << " ";
     cout << g[i].Nome;
     cout << " -> ";
-    for (j=0;j<size2;j++) {
+    for (j = 0;j < size2; j++) {
       if (j != size2-1) {
-        cout << g[i].parentes[j] << " -> ";
+        cout << g[i].amigos[j] << " -> ";
       }
       else {
-        cout << g[i].parentes[j];
+        cout << g[i].amigos[j];
       }
     }
     cout << endl;
@@ -62,27 +64,27 @@ int main () {
   string ch;
   
   linhas = leitura_arquivo();
-
   size = linhas.size();
+
   for (i = 0; i < size; i++) {
     for (j = 0; j < (int)linhas[i].size(); j++) {
-      if (linhas[i][j] >= 48 && linhas[i][j] <= 57) {
+      if (linhas[i][j] >= '0' && linhas[i][j] <= '9') { //Se for digito numerico
         ch.push_back(linhas[i][j]);
       }
-      else if (linhas[i][j] == ' ') {
-        if (j<=2) {
+      else if (linhas[i][j] == ' ') { 
+        if (j <= 2) { //Eh um dos digitos identificadores
           g[i].pk = atoi(ch.c_str());
         }
-        else {
-          g[i].parentes.push_back(atoi(ch.c_str()));
+        else if (ch.compare("0") != 0) { //Se o identificador numerico nao for de zero amigos
+          g[i].amigos.push_back(atoi(ch.c_str()));
         }
-        ch.clear();
+        ch.clear(); //Limpa para ser usado no proximo loop
       }
-      else if (linhas[i][j] >= 65 && linhas[i][j] <= 90) {
-        for (k=j;k<(int)linhas[i].size();k++) {
+      else if (linhas[i][j] >= 'A' && linhas[i][j] <= 'Z') { // Se for caractere
+        for (k = j; k <(int)linhas[i].size(); k++) {
           g[i].Nome.push_back(linhas[i][k]);
         }
-        j=k;
+        j = k;
       }
     }
   }
