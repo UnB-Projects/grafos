@@ -16,6 +16,14 @@ typedef struct Vertice {
 
 typedef vector<Vertice> Grafo;
 
+//Funcoes extras
+
+bool comparaAmigos(Vertice a, Vertice b) {
+  return a.amigos.size() > b.amigos.size(); 
+}
+
+//Funcoes de grafo
+
 void mostra_grafo(Grafo g) {
   int size = g.size();
   int size2;
@@ -106,9 +114,22 @@ void montaGrafo(Grafo &g) {
   }
 }
 
+void mostraGrafoDecrescente(Grafo g) {
+  sort(g.begin(), g.end(), comparaAmigos);
+  mostra_grafo(g);
+}
+
 int main () {
   Grafo g(MAX);
 
   montaGrafo(g);
+
+  cout << "Inicio mostra_grafo" << endl;
   mostra_grafo(g);
+  cout << "Fim mostra_grafo" << endl << endl;
+
+  cout << "Inicio mostra_grafo decrescente" << endl;
+  mostraGrafoDecrescente(g);
+  cout << "Fim mostra_grafo decrescente" << endl << endl;
+
 }
