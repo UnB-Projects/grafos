@@ -13,7 +13,9 @@ typedef struct Vertice {
   vector<int> amigos;
 }t_Vertice;
 
-void mostra_grafo(vector<Vertice> g) {
+typedef vector<Vertice> Grafo;
+
+void mostra_grafo(Grafo g) {
   int size = g.size();
   int size2;
   int i, j;
@@ -57,20 +59,20 @@ vector<string> leitura_arquivo() {
   return linhas;
 }
 
-void adicionaVertice(vector<Vertice> &g, string ch, int i) {
+void adicionaVertice(Grafo &g, string ch, int i) {
   g[i].pk = atoi(ch.c_str());
 }
 
-void adicionaAresta(vector<Vertice> &g, string ch, int i) {
+void adicionaAresta(Grafo &g, string ch, int i) {
   g[i].amigos.push_back(atoi(ch.c_str()));
 }
 
-void adicionaNome(vector<Vertice> &g, string ch, int i) {
+void adicionaNome(Grafo &g, string ch, int i) {
   g[i].Nome = ch;
 }
 
 int main () {
-  vector<Vertice> g(MAX);
+  Grafo g(MAX);
   vector<string> linhas(50);  
   int i, j, k, size;
   string ch;
