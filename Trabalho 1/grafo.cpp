@@ -13,19 +13,19 @@ typedef struct Vertice {
   vector<int> parentes;
 }t_Vertice;
 
-vector<Vertice> g(MAX);
+void mostra_grafo(vector<Vertice> g) {
+  int size = g.size(),size2,i,j;
 
-void mostra_grafo() {
-  int sz = g.size(),sz2,i,j;
-  for (i=0;i<sz;i++) {
-    sz2 = g[i].parentes.size();
+  for (i = 0; i < size; i++) {
+    size2 = g[i].parentes.size();
     cout << g[i].pk << " ";
     cout << g[i].Nome;
     cout << " -> ";
-    for (j=0;j<sz2;j++) {
-      if (j != sz2-1) {
+    for (j=0;j<size2;j++) {
+      if (j != size2-1) {
         cout << g[i].parentes[j] << " -> ";
-      }else {
+      }
+      else {
         cout << g[i].parentes[j];
       }
     }
@@ -33,16 +33,18 @@ void mostra_grafo() {
   }
 }
 
-int main () {
-  int j=0,i,k,sz;
-  ifstream input( "nomes.txt" );
-  string linha, ch;
+vector<string> leitura_arquivo() {
   vector<string> linhas(50);
+  string linha;
+  ifstream input( "nomes.txt" );
+  int i, j = 0;
+
   for (;getline( input, linha );) {
-    for (int i=0;i<(int)linha.size();i++) {
+    for (i = 0; i < (int)linha.size(); i++) {
       if (linha[i] != '|' && (linha[i] != ' ')) { // Pega o caracter e coloca na string
         linhas[j].push_back(linha[i]);
-      }else {
+      }
+      else {
         if (*linhas[j].rbegin() != ' ') { // Tira dois espaços, que vem das primeiras duas barras (|) do arquivo texto
           linhas[j].push_back(' '); // É só frescura msm '-'
         }
@@ -50,16 +52,28 @@ int main () {
     }
     j++;
   }
-  sz = linhas.size();
-  for (i=0;i<sz;i++) {
-    for (j=0;j<(int)linhas[i].size();j++) {
+  return linhas;
+}
+
+int main () {
+  vector<Vertice> g(MAX);
+  vector<string> linhas(50);  
+  int i, j, k, size;
+  string ch;
+  
+  linhas = leitura_arquivo();
+
+  size = linhas.size();
+  for (i = 0; i < size; i++) {
+    for (j = 0; j < (int)linhas[i].size(); j++) {
       if (linhas[i][j] >= 48 && linhas[i][j] <= 57) {
         ch.push_back(linhas[i][j]);
       }
       else if (linhas[i][j] == ' ') {
         if (j<=2) {
           g[i].pk = atoi(ch.c_str());
-        }else {
+        }
+        else {
           g[i].parentes.push_back(atoi(ch.c_str()));
         }
         ch.clear();
@@ -72,5 +86,5 @@ int main () {
       }
     }
   }
-  mostra_grafo();
+  mostra_grafo(g);
 }
