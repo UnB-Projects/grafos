@@ -119,10 +119,9 @@ void mostraGrafoDecrescente(Grafo g) {
 
   sort(g.begin(), g.end(), comparaAmigos);
   for (i = 0; i < (int)g.size(); i++) {
-    cout << "Vertice: " << setw(2) <<  g[i].pk << " " 
+    cout << "Vertice: " << setw(2) << g[i].pk << " " 
          << "Grau: "    << setw(2) << g[i].amigos.size() << endl;
   }
-
 }
 
 int main () {
