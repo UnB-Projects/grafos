@@ -4,10 +4,6 @@ using namespace std;
 
 #define MAX 49
 
-typedef pair<int,int> ii;
-typedef vector<ii> vii;
-typedef vector<int> vi;
-
 typedef struct Vertice {
   string Nome;
   int pk;
@@ -16,10 +12,16 @@ typedef struct Vertice {
 
 typedef vector<Vertice> Grafo;
 
+vector<Grafo> maximalCliques; 
+
 //Funcoes extras
 
 bool comparaAmigos(Vertice a, Vertice b) {
-  return a.amigos.size() > b.amigos.size(); 
+  return a.amigos.size() > b.amigos.size();
+}
+
+bool comparaPK(Vertice a, Vertice b) {
+  return a.pk < b.pk;
 }
 
 //Funcoes de grafo
@@ -34,7 +36,7 @@ void mostra_grafo(Grafo g) {
     cout << g[i].pk << " ";
     cout << g[i].Nome;
     cout << " -> ";
-    for (j = 0;j < size2; j++) {
+    for (j = 0; j < size2; j++) {
       if (j != size2-1) {
         cout << g[i].amigos[j] << " -> ";
       }
@@ -49,13 +51,13 @@ void mostra_grafo(Grafo g) {
 vector<string> leitura_arquivo() {
   vector<string> linhas(50);
   string linha;
-  ifstream input( "nomes.txt" );
+  ifstream input( "amigos_tag20172.txt" );
   int i, j = 0;
 
-  for (;getline( input, linha );) {
+  for (;getline( input, linha );) { // Pega uma linha inteira do arquivo e coloca na string linha
     for (i = 0; i < (int)linha.size(); i++) {
       if (linha[i] != '|' && (linha[i] != ' ')) { // Pega o caracter e coloca na string
-        linhas[j].push_back(linha[i]);
+        linhas[j].push_back(linha[i]); // Seleciona apenas os caracteres e numeros da linha e coloca na string linhas.
       }
       else {
         if (*linhas[j].rbegin() != ' ') { // Tira dois espaços, que vem das primeiras duas barras (|) do arquivo texto
@@ -81,10 +83,10 @@ void adicionaNome(Grafo &g, string ch, int i) {
 }
 
 void montaGrafo(Grafo &g) {
-  vector<string> linhas(50);  
+  vector<string> linhas(50);
   int i, j, k, size;
   string ch;
-  
+
   linhas = leitura_arquivo();
   size = linhas.size();
 
@@ -93,7 +95,7 @@ void montaGrafo(Grafo &g) {
       if (linhas[i][j] >= '0' && linhas[i][j] <= '9') { //Se for digito numerico
         ch.push_back(linhas[i][j]);
       }
-      else if (linhas[i][j] == ' ') { 
+      else if (linhas[i][j] == ' ') {
         if (j <= 2) { //Eh um dos digitos identificadores
           adicionaVertice(g, ch, i);
         }
@@ -103,6 +105,7 @@ void montaGrafo(Grafo &g) {
         ch.clear();
       }
       else if (linhas[i][j] >= 'A' && linhas[i][j] <= 'Z') { // Se for caractere
+        // Loop que coloca em uma string auxiliar ch todos os caracteres, até o final do arquivo
         for (k = j; k <(int)linhas[i].size(); k++) {
           ch.push_back(linhas[i][k]);
         }
@@ -124,8 +127,54 @@ void mostraGrafoDecrescente(Grafo g) {
   }
 }
 
+Grafo uniaoVertices (Grafo x, Grafo y) {
+  Grafo uniao;
+  int i;
+  int j;
+
+  uniao = x;
+
+  i = 0;
+  j = 0;
+
+  while (i < (int)x.size() && j < (int)y.size()) {
+    if (y[j].pk < uniao[i].pk) {
+      uniao.push_back(y[j]);
+      j++;
+    }
+    else if (y[j].pk > uniao[i].pk) {
+      i++;
+    }
+    else {
+      i++;
+      j++;
+    }
+  }
+
+  while (j < (int)y.size()) {
+    uniao.push_back(y[j]);
+    j++;
+  }
+
+  sort(uniao.begin(), uniao.end(), comparaPK);
+
+  return uniao;
+}
+
+void bronKerbosch (Grafo clique, Grafo adjacentes, Grafo repetidos) {
+  Vertice pivo;
+
+  if (adjacentes.empty() && repetidos.empty()) {
+    maximalCliques.push_back(clique);
+  }
+  sort(adjacentes.begin(), adjacentes.end(), comparaAmigos);
+  pivo =  adjacentes[0];
+}
+
 int main () {
   Grafo g(MAX);
+  Grafo teste;
+  Vertice testeVertice;
 
   montaGrafo(g);
 
@@ -137,4 +186,13 @@ int main () {
   mostraGrafoDecrescente(g);
   cout << "Fim mostra_grafo decrescente" << endl << endl;
 
+
+  cout << "Inicio uniao" << endl;
+  testeVertice.pk = 50;
+  teste.push_back(testeVertice);
+  testeVertice.pk = 0;
+  teste.push_back(testeVertice);
+  teste = uniaoVertices(teste, g);
+  mostra_grafo(teste);
+  cout << "Fim uniao" << endl;
 }
