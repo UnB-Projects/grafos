@@ -127,10 +127,9 @@ void mostraGrafoDecrescente(Grafo g) {
   }
 }
 
-Grafo uniaoVertices (Grafo x, Grafo y) {
+Grafo uniaoVertices(Grafo x, Grafo y) {
   Grafo uniao;
-  int i;
-  int j;
+  int i, j;
 
   uniao = x;
 
@@ -161,6 +160,29 @@ Grafo uniaoVertices (Grafo x, Grafo y) {
   return uniao;
 }
 
+Grafo intersecaoVertices(Grafo x, Grafo y) {
+  Grafo intersecao;
+  int i, j;
+
+  i = 0;
+  j = 0;
+  while (i < (int)x.size() && j < (int)y.size()) {
+    if (x[i].pk < y[j].pk) {
+      i++;
+    }
+    else if (x[i].pk > y[j].pk) {
+      j++;
+    }
+    else {
+      intersecao.push_back(x[i]);
+      i++;
+      j++;
+    }
+  }
+
+  return intersecao;
+}
+
 void bronKerbosch (Grafo clique, Grafo adjacentes, Grafo repetidos) {
   Vertice pivo;
 
@@ -174,6 +196,7 @@ void bronKerbosch (Grafo clique, Grafo adjacentes, Grafo repetidos) {
 int main () {
   Grafo g(MAX);
   Grafo teste;
+  Grafo teste2;
   Vertice testeVertice;
 
   montaGrafo(g);
@@ -187,12 +210,21 @@ int main () {
   cout << "Fim mostra_grafo decrescente" << endl << endl;
 
 
-  cout << "Inicio uniao" << endl;
+  //inicializacao de testes
   testeVertice.pk = 50;
   teste.push_back(testeVertice);
   testeVertice.pk = 0;
   teste.push_back(testeVertice);
+
+  cout << "Inicio uniao" << endl;
   teste = uniaoVertices(teste, g);
   mostra_grafo(teste);
   cout << "Fim uniao" << endl;
+
+  testeVertice.pk = 48;
+  teste2.push_back(testeVertice);
+  cout << "Inicio intersecao" << endl;
+  teste = intersecaoVertices(g, teste2);
+  mostra_grafo(teste);
+  cout << "Fim intersecao" << endl;
 }
