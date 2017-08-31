@@ -183,20 +183,108 @@ Grafo intersecaoVertices(Grafo x, Grafo y) {
   return intersecao;
 }
 
-void bronKerbosch (Grafo clique, Grafo adjacentes, Grafo repetidos) {
-  Vertice pivo;
+Grafo complementarVertices(Grafo x, Grafo y) {
+  Grafo intersecao;
+  Grafo complementar;
+  int i, j;
 
-  if (adjacentes.empty() && repetidos.empty()) {
-    maximalCliques.push_back(clique);
+  intersecao = intersecaoVertices(x, y);
+
+  i = 0;
+  j = 0;
+  while (i < (int)x.size() && j < (int)intersecao.size()) {
+    while (i < (int)x.size() && x[i].pk < intersecao[j].pk) {
+      complementar.push_back(x[i]);
+      i++;
+    }
+    if (x[i].pk != intersecao[j].pk) {
+      complementar.push_back(x[i]);
+    }
+    else {
+      i++;
+    }
+    j++;
   }
-  sort(adjacentes.begin(), adjacentes.end(), comparaAmigos);
-  pivo =  adjacentes[0];
+
+  while (i < (int)x.size()) {
+    complementar.push_back(x[i]);
+    i++;
+  }
+
+  return complementar;
+}
+
+Grafo vizinhosVertice(Grafo g, Vertice v) {
+  int i;
+  Grafo vizinhos;
+
+  for (i = 0; i < (int)v.amigos.size(); i++) {
+    vizinhos.push_back(g[v.amigos[i]-1]);
+  }
+
+  return vizinhos;
+}
+
+void bronKerbosch (Grafo g, Grafo R, Grafo P, Grafo X) {
+  Vertice pivo;
+  Grafo uniao;
+  Grafo vizinhosPivo;
+  Grafo verticesComplementares;
+  Grafo conjuntoV;
+  int i = 0;
+
+  if (P.empty() && X.empty()) {
+    maximalCliques.push_back(R);
+    cout << "entrou" << endl;
+    mostra_grafo(R);
+    return;
+  }
+
+  
+  uniao = uniaoVertices(P, X);
+  sort(uniao.begin(), uniao.end(), comparaAmigos);
+  pivo = uniao[0];
+  cout << "uniaoVertices" << endl;
+  mostra_grafo(uniao);
+
+  vizinhosPivo = vizinhosVertice(g, pivo);
+  cout << "vizinhosPivo" << endl;
+  mostra_grafo(vizinhosPivo);
+
+  verticesComplementares = complementarVertices(P, vizinhosPivo);
+  cout << "verticesComplementares" << endl;
+  mostra_grafo(verticesComplementares);
+
+  for (i = 0; i < (int)verticesComplementares.size(); i++) {
+    conjuntoV.push_back(verticesComplementares[i]);
+    cout << "conjuntoV" << endl;
+    mostra_grafo(conjuntoV);
+
+    cout << "uniaoVertices(R, conjuntoV)" << endl;
+    mostra_grafo(uniaoVertices(R, conjuntoV));
+
+    cout << "intersecaoVertices(P, vizinhosVertice(g, verticesComplementares[i]))" << endl;
+    mostra_grafo(intersecaoVertices(P, vizinhosVertice(g, verticesComplementares[i])));
+
+    bronKerbosch(g, uniaoVertices(R, conjuntoV),
+                 intersecaoVertices(P, vizinhosVertice(g, verticesComplementares[i])),
+                 intersecaoVertices(X, vizinhosVertice(g, verticesComplementares[i])));
+
+
+    P = complementarVertices(P, conjuntoV);
+    X = uniaoVertices(X, conjuntoV);
+
+    conjuntoV.clear();
+  }
 }
 
 int main () {
   Grafo g(MAX);
+  Grafo R;
+  Grafo X;
   Grafo teste;
   Grafo teste2;
+  Grafo teste3;
   Vertice testeVertice;
 
   montaGrafo(g);
@@ -227,4 +315,14 @@ int main () {
   teste = intersecaoVertices(g, teste2);
   mostra_grafo(teste);
   cout << "Fim intersecao" << endl;
+
+  testeVertice.pk = 51;
+  teste2.push_back(testeVertice);
+  cout << "Inicio complementar" << endl;
+  teste = complementarVertices(g, teste2);
+  mostra_grafo(teste);
+  cout << "Fim complementar" << endl;
+
+  cout << "bronKerbosch" << endl;
+  bronKerbosch(g, R, g, X);
 }
