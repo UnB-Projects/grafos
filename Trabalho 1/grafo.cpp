@@ -235,7 +235,7 @@ void bronKerbosch (Grafo g, Grafo R, Grafo P, Grafo X) {
 
   if (P.empty() && X.empty()) {
     maximalCliques.push_back(R);
-    cout << "entrou" << endl;
+    cout << "Clique:" << endl;
     mostra_grafo(R);
     return;
   }
@@ -244,27 +244,14 @@ void bronKerbosch (Grafo g, Grafo R, Grafo P, Grafo X) {
   uniao = uniaoVertices(P, X);
   sort(uniao.begin(), uniao.end(), comparaAmigos);
   pivo = uniao[0];
-  cout << "uniaoVertices" << endl;
-  mostra_grafo(uniao);
 
   vizinhosPivo = vizinhosVertice(g, pivo);
-  cout << "vizinhosPivo" << endl;
-  mostra_grafo(vizinhosPivo);
+
 
   verticesComplementares = complementarVertices(P, vizinhosPivo);
-  cout << "verticesComplementares" << endl;
-  mostra_grafo(verticesComplementares);
 
   for (i = 0; i < (int)verticesComplementares.size(); i++) {
     conjuntoV.push_back(verticesComplementares[i]);
-    cout << "conjuntoV" << endl;
-    mostra_grafo(conjuntoV);
-
-    cout << "uniaoVertices(R, conjuntoV)" << endl;
-    mostra_grafo(uniaoVertices(R, conjuntoV));
-
-    cout << "intersecaoVertices(P, vizinhosVertice(g, verticesComplementares[i]))" << endl;
-    mostra_grafo(intersecaoVertices(P, vizinhosVertice(g, verticesComplementares[i])));
 
     bronKerbosch(g, uniaoVertices(R, conjuntoV),
                  intersecaoVertices(P, vizinhosVertice(g, verticesComplementares[i])),
