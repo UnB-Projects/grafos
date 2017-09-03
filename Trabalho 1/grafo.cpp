@@ -114,7 +114,7 @@ void montaGrafo(Grafo &g) {
         auxiliar.clear();
       }
       else if (linhas[i][j] >= 'A' && linhas[i][j] <= 'Z') { // Se for caractere
-        // Loop que coloca em uma string auxiliar auxiliar, todos os caracteres até o final do arquivo
+        // Loop que coloca em uma string auxiliar, todos os caracteres até o final do arquivo
         for (k = j; k <(int)linhas[i].size(); k++) {
           auxiliar.push_back(linhas[i][k]);
         }
