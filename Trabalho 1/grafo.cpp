@@ -6,11 +6,17 @@
 //Nome: Tiago Rodrigues da Cunha Cabral
 //Matricula: 15/0150296
 
-#include <bits/stdc++.h>
+// Lista de bibliotecas incluidas
+#include <iostream> // biblioteca de input e output padrao do c++
+#include <string> // biblioteca padrao de strings do c++
+#include <fstream> // Utilizado o ifstream, para leitura do arquivo
+#include <vector> // Estrutura do vector, utilizada no grafo
+#include <iomanip> // Metodo setw
+#include <algorithm> // Metodo sort
 
 using namespace std;
 
-#define MAX 49
+#define MAX 49 // Numero de alunos na lista de presenca
 
 typedef struct Vertice { //Definicao da estrutura de um vertice
   string Nome;           //Nome dos alunos
@@ -39,9 +45,10 @@ bool comparaAmigos(Vertice, Vertice);
 bool comparaPK(Vertice, Vertice);
 bool comparaCliques(Grafo, Grafo);
 
+
 //Grafo de cliques maximos
 
-vector<Grafo> maximalCliques; 
+vector<Grafo> maximalCliques;
 
 int main () {
   Grafo g(MAX);
@@ -74,7 +81,7 @@ vector<string> leitura_arquivo() {
       }
       else {
         if (*linhas[j].rbegin() != ' ') { // Tira dois espaços, que vem das primeiras duas barras (|) do arquivo texto
-          linhas[j].push_back(' '); // É só frescura msm '-'
+          linhas[j].push_back(' ');
         }
       }
     }
@@ -85,9 +92,9 @@ vector<string> leitura_arquivo() {
 
 //Funcoes principais do trabalho
 void montaGrafo(Grafo &g) {
-  vector<string> linhas(50);
+  vector<string> linhas(50); // Um vetor de strings, sua funcao eh armazenar cada linha do arquivo em uma string
   int i, j, k, size;
-  string ch;
+  string auxiliar; // Utilizada em diversos momentos para montar um numero ou nome, e logo apos, adicionar seu conteudo ao vetor em forma de aresta ou vertice
 
   linhas = leitura_arquivo();
   size = linhas.size();
@@ -95,24 +102,24 @@ void montaGrafo(Grafo &g) {
   for (i = 0; i < size; i++) {
     for (j = 0; j < (int)linhas[i].size(); j++) {
       if (linhas[i][j] >= '0' && linhas[i][j] <= '9') { //Se for digito numerico
-        ch.push_back(linhas[i][j]);
+        auxiliar.push_back(linhas[i][j]);
       }
       else if (linhas[i][j] == ' ') {
         if (j <= 2) { //Eh um dos digitos identificadores
-          adicionaVertice(g, ch, i);
+          adicionaVertice(g, auxiliar, i);
         }
-        else if (ch.compare("0") != 0) { //Se o identificador numerico nao for de zero amigos
-          adicionaAresta(g, ch, i);
+        else if (auxiliar.compare("0") != 0) { //Se o identificador numerico nao for de zero amigos
+          adicionaAresta(g, auxiliar, i);
         }
-        ch.clear();
+        auxiliar.clear();
       }
       else if (linhas[i][j] >= 'A' && linhas[i][j] <= 'Z') { // Se for caractere
-        // Loop que coloca em uma string auxiliar ch, todos os caracteres até o final do arquivo
+        // Loop que coloca em uma string auxiliar auxiliar, todos os caracteres até o final do arquivo
         for (k = j; k <(int)linhas[i].size(); k++) {
-          ch.push_back(linhas[i][k]);
+          auxiliar.push_back(linhas[i][k]);
         }
-        adicionaNome(g, ch, i);
-        ch.clear();
+        adicionaNome(g, auxiliar, i);
+        auxiliar.clear();
         j = k;
       }
     }
@@ -153,12 +160,12 @@ void mostra_grafo(Grafo g) { //Funcao que recebe um grafo e o imprime na tela
   }
 }
 
-void mostraGrafoDecrescente(Grafo g) {
+void mostraGrafoDecrescente(Grafo g) { // Funcao que recebe o grafo e mostra somente o vertice e seu respectivo grau em ordem decrescente
   int i;
 
   sort(g.begin(), g.end(), comparaAmigos); //Ordenacao de grafo por grau dos vertices
   for (i = 0; i < (int)g.size(); i++) {
-    cout << "Vertice: " << setw(2) << g[i].pk << " " 
+    cout << "Vertice: " << setw(2) << g[i].pk << " "
          << "Grau: "    << setw(2) << g[i].amigos.size() << endl;
   }
 }
