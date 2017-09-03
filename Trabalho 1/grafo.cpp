@@ -12,40 +12,53 @@ typedef struct Vertice {
 
 typedef vector<Vertice> Grafo;
 
+//prototipos
+
+bool comparaAmigos(Vertice, Vertice);
+bool comparaPK(Vertice, Vertice);
+void mostra_grafo(Grafo);
+vector<string> leitura_arquivo();
+void adicionaVertice(Grafo&, string, int);
+void adicionaAresta(Grafo&, string, int);
+void adicionaNome(Grafo&, string, int);
+void montaGrafo(Grafo&);
+void mostraGrafoDecrescente(Grafo);
+Grafo uniaoVertices(Grafo, Grafo);
+Grafo intersecaoVertices(Grafo, Grafo);
+Grafo complementarVertices(Grafo, Grafo);
+Grafo vizinhosVertice(Grafo, Vertice);
+void bronKerbosch (Grafo, Grafo, Grafo, Grafo);
+bool comparaCliques(Grafo, Grafo);
+void mostraCliques();
+
+//Grafo de cliques maximos
+
 vector<Grafo> maximalCliques; 
 
-//Funcoes extras
+int main () {
+  Grafo g(MAX);
+  Grafo R;
+  Grafo X;
+  Grafo teste;
+  Grafo teste2;
+  Grafo teste3;
+  Vertice testeVertice;
 
-bool comparaAmigos(Vertice a, Vertice b) {
-  return a.amigos.size() > b.amigos.size();
-}
+  montaGrafo(g);
 
-bool comparaPK(Vertice a, Vertice b) {
-  return a.pk < b.pk;
-}
+  cout << "Inicio mostra_grafo" << endl;
+  mostra_grafo(g);
+  cout << "Fim mostra_grafo" << endl << endl;
 
-//Funcoes de grafo
+  cout << "Inicio mostra_grafo decrescente" << endl;
+  mostraGrafoDecrescente(g);
+  cout << "Fim mostra_grafo decrescente" << endl << endl;
 
-void mostra_grafo(Grafo g) {
-  int size = g.size();
-  int size2;
-  int i, j;
+  bronKerbosch(g, R, g, X);
 
-  for (i = 0; i < size; i++) {
-    size2 = g[i].amigos.size();
-    cout << g[i].pk << " ";
-    cout << g[i].Nome;
-    cout << " -> ";
-    for (j = 0; j < size2; j++) {
-      if (j != size2-1) {
-        cout << g[i].amigos[j] << " -> ";
-      }
-      else {
-        cout << g[i].amigos[j];
-      }
-    }
-    cout << endl;
-  }
+  sort(maximalCliques.begin(), maximalCliques.end(), comparaCliques);
+
+  mostraCliques();
 }
 
 vector<string> leitura_arquivo() {
@@ -54,7 +67,7 @@ vector<string> leitura_arquivo() {
   ifstream input( "amigos_tag20172.txt" );
   int i, j = 0;
 
-  for (;getline( input, linha );) { // Pega uma linha inteira do arquivo e coloca na string linha
+  while (getline( input, linha )) { // Pega uma linha inteira do arquivo e coloca na string linha
     for (i = 0; i < (int)linha.size(); i++) {
       if (linha[i] != '|' && (linha[i] != ' ')) { // Pega o caracter e coloca na string
         linhas[j].push_back(linha[i]); // Seleciona apenas os caracteres e numeros da linha e coloca na string linhas.
@@ -70,18 +83,7 @@ vector<string> leitura_arquivo() {
   return linhas;
 }
 
-void adicionaVertice(Grafo &g, string ch, int i) {
-  g[i].pk = atoi(ch.c_str());
-}
-
-void adicionaAresta(Grafo &g, string ch, int i) {
-  g[i].amigos.push_back(atoi(ch.c_str()));
-}
-
-void adicionaNome(Grafo &g, string ch, int i) {
-  g[i].Nome = ch;
-}
-
+//Funcoes principais do trabalho
 void montaGrafo(Grafo &g) {
   vector<string> linhas(50);
   int i, j, k, size;
@@ -117,6 +119,40 @@ void montaGrafo(Grafo &g) {
   }
 }
 
+void adicionaVertice(Grafo &g, string ch, int i) {
+  g[i].pk = atoi(ch.c_str());
+}
+
+void adicionaAresta(Grafo &g, string ch, int i) {
+  g[i].amigos.push_back(atoi(ch.c_str()));
+}
+
+void adicionaNome(Grafo &g, string ch, int i) {
+  g[i].Nome = ch;
+}
+
+void mostra_grafo(Grafo g) {
+  int size = g.size();
+  int size2;
+  int i, j;
+
+  for (i = 0; i < size; i++) {
+    size2 = g[i].amigos.size();
+    cout << g[i].pk << " ";
+    cout << g[i].Nome;
+    cout << " -> ";
+    for (j = 0; j < size2; j++) {
+      if (j != size2-1) {
+        cout << g[i].amigos[j] << " -> ";
+      }
+      else {
+        cout << g[i].amigos[j];
+      }
+    }
+    cout << endl;
+  }
+}
+
 void mostraGrafoDecrescente(Grafo g) {
   int i;
 
@@ -127,6 +163,65 @@ void mostraGrafoDecrescente(Grafo g) {
   }
 }
 
+void mostraCliques() {
+  int i;
+
+  cout << "Clique Maximal do grafo por nomes:" << endl << endl;
+  for (i = 0; i < (int)maximalCliques[8].size(); i++) {
+    if (i > 0) {
+      cout << " - ";
+    }
+    cout << maximalCliques[8][i].Nome;
+  }
+  cout << endl << endl;
+
+  cout << "Clique Maximo do grafo por nomes:" << endl << endl;
+  for (i = 0; i < (int)maximalCliques[0].size(); i++) {
+    if (i > 0) {
+      cout << " - ";
+    }
+    cout << maximalCliques[0][i].Nome;
+  }
+  cout << endl;
+}
+
+void bronKerbosch (Grafo g, Grafo R, Grafo P, Grafo X) {
+  Vertice pivo;
+  Grafo uniao;
+  Grafo vizinhosPivo;
+  Grafo verticesComplementares;
+  Grafo conjuntoV;
+  int i = 0;
+
+  if (P.empty() && X.empty()) {
+    maximalCliques.push_back(R);
+    return;
+  }
+
+  uniao = uniaoVertices(P, X);
+  sort(uniao.begin(), uniao.end(), comparaAmigos);
+  pivo = uniao[0];
+
+  vizinhosPivo = vizinhosVertice(g, pivo);
+
+
+  verticesComplementares = complementarVertices(P, vizinhosPivo);
+
+  for (i = 0; i < (int)verticesComplementares.size(); i++) {
+    conjuntoV.push_back(verticesComplementares[i]);
+
+    bronKerbosch(g, uniaoVertices(R, conjuntoV),
+                 intersecaoVertices(P, vizinhosVertice(g, verticesComplementares[i])),
+                 intersecaoVertices(X, vizinhosVertice(g, verticesComplementares[i])));
+
+    P = complementarVertices(P, conjuntoV);
+    X = uniaoVertices(X, conjuntoV);
+
+    conjuntoV.clear();
+  }
+}
+
+//Funcoes auxiliares de Bron Kerbosch
 Grafo uniaoVertices(Grafo x, Grafo y) {
   Grafo uniao;
   int i, j;
@@ -225,91 +320,15 @@ Grafo vizinhosVertice(Grafo g, Vertice v) {
   return vizinhos;
 }
 
-void bronKerbosch (Grafo g, Grafo R, Grafo P, Grafo X) {
-  Vertice pivo;
-  Grafo uniao;
-  Grafo vizinhosPivo;
-  Grafo verticesComplementares;
-  Grafo conjuntoV;
-  int i = 0;
-
-  if (P.empty() && X.empty()) {
-    maximalCliques.push_back(R);
-    cout << "Clique:" << endl;
-    mostra_grafo(R);
-    return;
-  }
-
-  
-  uniao = uniaoVertices(P, X);
-  sort(uniao.begin(), uniao.end(), comparaAmigos);
-  pivo = uniao[0];
-
-  vizinhosPivo = vizinhosVertice(g, pivo);
-
-
-  verticesComplementares = complementarVertices(P, vizinhosPivo);
-
-  for (i = 0; i < (int)verticesComplementares.size(); i++) {
-    conjuntoV.push_back(verticesComplementares[i]);
-
-    bronKerbosch(g, uniaoVertices(R, conjuntoV),
-                 intersecaoVertices(P, vizinhosVertice(g, verticesComplementares[i])),
-                 intersecaoVertices(X, vizinhosVertice(g, verticesComplementares[i])));
-
-
-    P = complementarVertices(P, conjuntoV);
-    X = uniaoVertices(X, conjuntoV);
-
-    conjuntoV.clear();
-  }
+//Funcoes de comparacao
+bool comparaAmigos(Vertice a, Vertice b) {
+  return a.amigos.size() > b.amigos.size();
 }
 
-int main () {
-  Grafo g(MAX);
-  Grafo R;
-  Grafo X;
-  Grafo teste;
-  Grafo teste2;
-  Grafo teste3;
-  Vertice testeVertice;
+bool comparaPK(Vertice a, Vertice b) {
+  return a.pk < b.pk;
+}
 
-  montaGrafo(g);
-
-  cout << "Inicio mostra_grafo" << endl;
-  mostra_grafo(g);
-  cout << "Fim mostra_grafo" << endl << endl;
-
-  cout << "Inicio mostra_grafo decrescente" << endl;
-  mostraGrafoDecrescente(g);
-  cout << "Fim mostra_grafo decrescente" << endl << endl;
-
-
-  //inicializacao de testes
-  testeVertice.pk = 50;
-  teste.push_back(testeVertice);
-  testeVertice.pk = 0;
-  teste.push_back(testeVertice);
-
-  cout << "Inicio uniao" << endl;
-  teste = uniaoVertices(teste, g);
-  mostra_grafo(teste);
-  cout << "Fim uniao" << endl;
-
-  testeVertice.pk = 48;
-  teste2.push_back(testeVertice);
-  cout << "Inicio intersecao" << endl;
-  teste = intersecaoVertices(g, teste2);
-  mostra_grafo(teste);
-  cout << "Fim intersecao" << endl;
-
-  testeVertice.pk = 51;
-  teste2.push_back(testeVertice);
-  cout << "Inicio complementar" << endl;
-  teste = complementarVertices(g, teste2);
-  mostra_grafo(teste);
-  cout << "Fim complementar" << endl;
-
-  cout << "bronKerbosch" << endl;
-  bronKerbosch(g, R, g, X);
+bool comparaCliques(Grafo a, Grafo b) {
+  return a.size() > b.size();
 }
