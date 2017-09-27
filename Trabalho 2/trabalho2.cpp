@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#define MAX 50 // Tamanho do grafo.
+#define MAX 35 // Tamanho do grafo.
 int SizeGraph = MAX; // A principio tem o tamanho maximo permitido.
 
 typedef pair<int,int> Aresta; // Uma aresta eh um pair da seguinte forma: <Disciplina,Peso da Aresta>
@@ -62,8 +62,8 @@ vector<string> leitura_arquivo() {
 
 void montaGrafo(Grafo &g) {
 
-  int i,j;
-  int vetor_creditos[SizeGraph], dificuldadeAux;
+  int i,j,k;
+  int vetor_creditos[SizeGraph], dificuldadeAux, vetor_posicoes[SizeGraph];
   vector<string> linhas(SizeGraph);
   linhas = leitura_arquivo();
   string auxiliar, ch;
@@ -72,17 +72,23 @@ void montaGrafo(Grafo &g) {
     for (j=0;linhas[i][j] != ' ';j++) {
       auxiliar.push_back(linhas[i][j]);
     }
+    k=j;
+    while (!(linhas[i][k] >= '0' && linhas[i][k] <= '9')) { // Procura a posicao do proximo numero
+      k++;
+    }
+    vetor_posicoes[i] = k; // E coloca no vetor a posicao do proximo numero
+
     adicionaVertice(g,auxiliar,i);
     auxiliar.clear();
   }
   for (i=0;i<SizeGraph;i++) {
-    // 9 eh a posicao do numero de creditos, e guarda estes em um vetor auxiliar.
-    ch = linhas[i][9];
+    ch = linhas[i][vetor_posicoes[i]];
     vetor_creditos[i] = atoi(ch.c_str());
+    vetor_posicoes[i]++; // Avancamos o vetor de posicoes em 1, para ler a partir da proxima posicao
   }
   ch.clear();
   for (i=0;i<SizeGraph;i++) {
-    for (j=12;j<(int)linhas[i].size();j++) {
+    for (j=vetor_posicoes[i];j<(int)linhas[i].size();j++) {
       if (linhas[i][j] >= '0' && linhas[i][j] <= '9') {
         while (linhas[i][j] >= '0' && linhas[i][j] <= '9') {
           auxiliar.push_back(linhas[i][j]);
