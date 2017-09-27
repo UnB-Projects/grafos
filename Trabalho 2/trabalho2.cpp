@@ -129,6 +129,53 @@ void mostra_grafo(Grafo g) { //Funcao que recebe um grafo e o imprime na tela
   }
 }
 
+bool existe_na_lista(vector<Aresta> lista, int codigo) {
+  int i;
+
+  for (i = 0; i < (int)lista.size(); i++) {
+    if (codigo == lista[i].first) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void ordenacao_topologica(Grafo g) {
+  int i, j;
+  int codigo;
+  unsigned int tamanho_inicial; 
+  bool flag;
+  vector<int> ordem;
+
+  tamanho_inicial = (int)g.size();
+
+  while (ordem.size() != tamanho_inicial) {
+    for (i = 0; i < (int)g.size(); i++) {
+      codigo = g[i].codigo;
+      flag = false;
+
+      for (j = 0; j < (int)g.size(); j++) {
+        if (existe_na_lista(g[j].disciplinas, codigo)) {
+          j = (int)g.size();
+          flag = true;
+        }
+      }
+
+      if (flag == false) {
+        cout << g.size() << endl;
+        ordem.push_back(codigo);
+        g.erase(g.begin() + i);
+        i--;
+      }
+    }
+  }
+
+  for (i = 0; i < (int)ordem.size(); i++) {
+    cout << ordem[i] << " -> ";
+  }
+  cout << endl;
+}
+
 int main () {
 
   Grafo g(MAX);
@@ -136,6 +183,8 @@ int main () {
   montaGrafo(g);
 
   mostra_grafo(g);
+
+  ordenacao_topologica(g);
 
   return 0;
 }
