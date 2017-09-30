@@ -75,12 +75,12 @@ vector<string> leitura_arquivo() {
   while (getline( input, linha )) { // Pega uma linha inteira do arquivo e coloca na string linha
     for (i = 0; i < (int)linha.size(); i++) {
       if ((linha[i] >= 'A' && linha[i] <= 'Z')) {
-        while (linha[i] != '|') {
+        while (linha[i] != '|') { // Se encontrar uma letra, ignora todas ate encontrar um separador '|'
           i++;
         }
       }
       else {
-        linhas[j].push_back(linha[i]);
+        linhas[j].push_back(linha[i]); // Se nao for uma letra adiciona ao vector de linhas do arquivo
       }
     }
     j++;
@@ -91,13 +91,15 @@ vector<string> leitura_arquivo() {
 void montaGrafo(Grafo &g) {
 
   int i, j, k;
-  int vetor_creditos[MAX], dificuldadeAux, vetor_posicoes[MAX];
+  int vetor_creditos[MAX];
+  int dificuldadeAux;
+  int vetor_posicoes[MAX]; // Utilizada para armazenar a ultima posicao lida em uma linha do arquivo
   vector<string> linhas(MAX);
   linhas = leitura_arquivo();
   string auxiliar, ch;
 
   for (i = 0; i < MAX; i++) {
-    for (j = 0; linhas[i][j] != ' '; j++) {
+    for (j = 0; linhas[i][j] != ' '; j++) { // Repete ate encontrar um espaco, entao o que estiver na string auxiliar eh um codigo
       auxiliar.push_back(linhas[i][j]);
     }
 
@@ -105,9 +107,9 @@ void montaGrafo(Grafo &g) {
     while (!(linhas[i][k] >= '0' && linhas[i][k] <= '9')) { // Procura a posicao do proximo numero
       k++;
     }
-    vetor_posicoes[i] = k; // E coloca no vetor a posicao do proximo numero
+    vetor_posicoes[i] = k; // E coloca no vetor_posicoes a posicao do proximo numero
 
-    adicionaVertice(g, auxiliar, i);
+    adicionaVertice(g, auxiliar, i); // E por fim adicionamos o codigo do vertice no grafo
     auxiliar.clear();
   }
 
@@ -121,18 +123,18 @@ void montaGrafo(Grafo &g) {
   for (i = 0; i < MAX; i++) {
     for (j = vetor_posicoes[i]; j < (int)linhas[i].size(); j++) {
       if (linhas[i][j] >= '0' && linhas[i][j] <= '9') {
-        while (linhas[i][j] >= '0' && linhas[i][j] <= '9') {
+        while (linhas[i][j] >= '0' && linhas[i][j] <= '9') { // Loop que procura pelo codigo da materia
           auxiliar.push_back(linhas[i][j]);
           j++;
         }
 
-        while (!(linhas[i][j] >= '0' && linhas[i][j] <= '9')) {
+        while (!(linhas[i][j] >= '0' && linhas[i][j] <= '9')) { // Apos ler o codigo, ignoramos o restante ate encontrar o proximo numero
           j++;
         }
 
-        ch = linhas[i][j];
-        dificuldadeAux = atoi(ch.c_str());
-        adicionaAresta(g, auxiliar, dificuldadeAux, i, vetor_creditos[i]);
+        ch = linhas[i][j]; // A proxima posicao corresponde ao grau de dificuldade da materia
+        dificuldadeAux = atoi(ch.c_str()); // Ela eh transformada em um inteiro
+        adicionaAresta(g, auxiliar, dificuldadeAux, i, vetor_creditos[i]); // Por fim criamos a aresta que sai do vertice com indice i
       }
       auxiliar.clear();
       ch.clear();
@@ -144,7 +146,7 @@ void adicionaVertice(Grafo &g, string ch, int i) { //Funcao que adiciona um vert
   g[i].codigo = atoi(ch.c_str());
 }
 
-void adicionaAresta(Grafo &g, string auxiliar, int dificuldadeAux, int i, int creditos) {
+void adicionaAresta(Grafo &g, string auxiliar, int dificuldadeAux, int i, int creditos) { // Funcao que controi uma aresta, que sai do vertice i, com P = dificuldadeAux*creditos
   string ch;
   ch = auxiliar;
   int aux = atoi(ch.c_str());
@@ -154,7 +156,7 @@ void adicionaAresta(Grafo &g, string auxiliar, int dificuldadeAux, int i, int cr
 //Funcoes relacionadas a ordenacao topologica
 Grafo ordenacao_topologica(Grafo g) {//Funcao que constroi um grafo cuja lista de vertices esta ordenada topologicamente
   int i, j;
-  int codigo; 
+  int codigo;
   bool flag;
   Grafo ordem;
 
@@ -265,20 +267,25 @@ void mostra_grafo(Grafo g) { //Funcao que recebe um grafo e o imprime na tela
 
   int i,j;
   for (i = 0; i < (int)g.size(); i++) {
-    cout << g[i].codigo << " -> ";
+    if (g[i].disciplinas.size() > 0) {
+      cout << g[i].codigo << " -> ";
+    }else{
+      cout << g[i].codigo << " -> / ";
+    }
+
     for (j = 0; j < (int)g[i].disciplinas.size();j++) {
       if (j != (int)g[i].disciplinas.size() - 1) {
-        cout << "(" << g[i].disciplinas[j].first << ", " << g[i].disciplinas[j].second << ")" << " -> ";
+        cout << "(P = " << g[i].disciplinas[j].second << " , " << g[i].disciplinas[j].first << ") -> ";
       }
       else {
-        cout << "(" << g[i].disciplinas[j].first << ", " << g[i].disciplinas[j].second << ")";
+        cout << "(P = " << g[i].disciplinas[j].second << " , " << g[i].disciplinas[j].first << ")";
       }
     }
     cout << endl;
   }
 }
 
-void mostra_caminho(Grafo grafo) { //Funcao utilizada para mostrar o caminho critico na tela e a ordenacao topologica 
+void mostra_caminho(Grafo grafo) { //Funcao utilizada para mostrar o caminho critico na tela e a ordenacao topologica
   int i;
 
   for (i = 0; i < (int)grafo.size(); i++) {
