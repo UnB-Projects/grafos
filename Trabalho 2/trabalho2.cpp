@@ -193,6 +193,7 @@ bool existe_na_lista(vector<Aresta> lista, int codigo) { //Funcao que verifica s
   return false;
 }
 
+//Funcoes relacionadas ao caminho critico
 Grafo caminho_critico(Grafo ordem, vector<int> finalizar) { //Funcao que encontra um caminho critico cujo vertice final eh o mais dificil de se alcancar
   unsigned int i, j;
   int mais_dificil = 0;
@@ -263,6 +264,7 @@ int calculaDificuldade(Grafo ordem, Vertice vertice, vector<int> finalizar) { //
   return dificuldade;
 }
 
+//Funcoes para printar na tela
 void mostra_grafo(Grafo g) { //Funcao que recebe um grafo e o imprime na tela
 
   int i,j;
