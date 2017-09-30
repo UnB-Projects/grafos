@@ -12,12 +12,11 @@
 #include <fstream> // Utilizado o ifstream, para leitura do arquivo
 #include <vector> // Estrutura do vector, utilizada no grafo
 #include <iomanip> // Metodo setw
-#include <algorithm> // Metodo sort
+#include <algorithm> // Metodo atoi
 
 using namespace std;
 
-#define MAX 35 // Tamanho do grafo.
-int SizeGraph = MAX; // A principio tem o tamanho maximo permitido.
+#define MAX 35 // Numero de disciplinas obrigatorias, consequentemente eh o tamanho do grafo.
 
 typedef pair<int,int> Aresta; // Uma aresta eh um pair da seguinte forma: <Disciplina,Peso da Aresta>
 typedef struct Vertice { //Definicao da estrutura de um vertice
@@ -53,22 +52,18 @@ vector<string> leitura_arquivo() {
     }
     j++;
   }
-
-  SizeGraph = j; // Variavel global para mostrar apenas os elementos ocupados do grafo.
-  // Se quiser pode mudar Igor.
-
   return linhas;
 }
 
 void montaGrafo(Grafo &g) {
 
   int i,j,k;
-  int vetor_creditos[SizeGraph], dificuldadeAux, vetor_posicoes[SizeGraph];
-  vector<string> linhas(SizeGraph);
+  int vetor_creditos[MAX], dificuldadeAux, vetor_posicoes[MAX];
+  vector<string> linhas(MAX);
   linhas = leitura_arquivo();
   string auxiliar, ch;
 
-  for (i=0;i<SizeGraph;i++) {
+  for (i=0;i<MAX;i++) {
     for (j=0;linhas[i][j] != ' ';j++) {
       auxiliar.push_back(linhas[i][j]);
     }
@@ -81,13 +76,13 @@ void montaGrafo(Grafo &g) {
     adicionaVertice(g,auxiliar,i);
     auxiliar.clear();
   }
-  for (i=0;i<SizeGraph;i++) {
+  for (i=0;i<MAX;i++) {
     ch = linhas[i][vetor_posicoes[i]];
     vetor_creditos[i] = atoi(ch.c_str());
     vetor_posicoes[i]++; // Avancamos o vetor de posicoes em 1, para ler a partir da proxima posicao
   }
   ch.clear();
-  for (i=0;i<SizeGraph;i++) {
+  for (i=0;i<MAX;i++) {
     for (j=vetor_posicoes[i];j<(int)linhas[i].size();j++) {
       if (linhas[i][j] >= '0' && linhas[i][j] <= '9') {
         while (linhas[i][j] >= '0' && linhas[i][j] <= '9') {
@@ -201,13 +196,42 @@ int calculaDificuldade(Grafo ordem, Vertice vertice, vector<int> finalizar) {
   return dificuldade;
 }
 
-Grafo encontra_caminho_critico(Grafo ordem, Vertice vertice, vector<int> finalizar) {
+vector<int> dificuldade_de_finalizar(Grafo ordem) {
+  vector<int> finalizar(MAX);
+  unsigned int i;
+
+  for (i = 0; i < finalizar.size(); i++) {
+    finalizar[i] = calculaDificuldade(ordem, ordem[i], finalizar);
+  }
+
+  for (i = 0; i < finalizar.size(); i++) {
+    cout << ordem[i].codigo << " Dificuldade associada: " << finalizar[i] << " " << endl;
+  }
+
+  return finalizar;
+}
+
+Grafo caminho_critico(Grafo ordem, vector<int> finalizar) {
   unsigned int i, j;
-  int codigo = vertice.codigo;
+  int mais_dificil = 0;
+  Vertice vertice;
+  int codigo;
   int dificuldade;
   int maior;
+  int index;
   bool flag;
   Grafo caminho;
+
+
+  for (i = 0; i < finalizar.size(); i++) {
+    if (finalizar[i] > mais_dificil) {
+      mais_dificil = finalizar[i];
+      index = i;
+    }
+  }
+
+  vertice = ordem[index];
+  codigo = vertice.codigo;
 
   caminho.push_back(vertice);
 
@@ -232,37 +256,11 @@ Grafo encontra_caminho_critico(Grafo ordem, Vertice vertice, vector<int> finaliz
   return caminho;
 }
 
-Grafo caminho_critico(Grafo ordem) {
-  vector<int> finalizar(MAX);
-  unsigned int i;
-  int maior = 0;
-  int index;
-  Grafo caminhoCritico;
-
-  for (i = 0; i < finalizar.size(); i++) {
-    finalizar[i] = calculaDificuldade(ordem, ordem[i], finalizar);
-  }
-
-  for (i = 0; i < finalizar.size(); i++) {
-    cout << ordem[i].codigo << " Dificuldade associada: " << finalizar[i] << " " << endl;
-  }
-
-  for (i = 0; i < finalizar.size(); i++) {
-    if (finalizar[i] > maior) {
-      maior = finalizar[i];
-      index = i;
-    }
-  }
-
-  caminhoCritico = encontra_caminho_critico(ordem, ordem[index], finalizar);
-
-  return caminhoCritico;
-}
-
 int main () {
   Grafo g(MAX);
   Grafo ordemTopologica;
   Grafo caminhoCritico;
+  vector<int> finalizar;
 
   montaGrafo(g);
   cout << "===== GRAFO MONTADO =====" << endl << endl;
@@ -274,7 +272,10 @@ int main () {
   cout << endl << "===== ORDENACAO TOPOLOGICA =====" << endl << endl;
   mostra_caminho(ordemTopologica);
 
-  caminhoCritico = caminho_critico(ordemTopologica);
+  cout << endl << "===== DIFICULDADE ASSOCIADA A CADA VERTICE =====" << endl << endl;
+  finalizar = dificuldade_de_finalizar(ordemTopologica);
+
+  caminhoCritico = caminho_critico(ordemTopologica, finalizar);
   cout << endl << "===== CAMINHO CRITICO =====" << endl << endl;
   mostra_caminho(caminhoCritico);
 
