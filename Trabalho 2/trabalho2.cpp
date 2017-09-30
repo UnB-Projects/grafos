@@ -33,20 +33,24 @@ void montaGrafo(Grafo&);
 void adicionaVertice(Grafo&, string, int);
 void adicionaAresta(Grafo&, string, int, int, int);
 void mostra_grafo(Grafo);
+bool existe_na_lista(vector<Aresta>, int);
+Grafo ordenacao_topologica(Grafo);
+void mostra_caminho(Grafo);
 
 //Funcao de leitura do arquivo
 vector<string> leitura_arquivo() {
   vector<string> linhas(MAX);
   string linha;
   ifstream input( "file.txt" );
-  int i,j=0;
+  int i, j = 0;
   while (getline( input, linha )) { // Pega uma linha inteira do arquivo e coloca na string linha
-    for (i=0;i<(int)linha.size();i++) {
+    for (i = 0; i < (int)linha.size(); i++) {
       if ((linha[i] >= 'A' && linha[i] <= 'Z')) {
         while (linha[i] != '|') {
           i++;
         }
-      }else {
+      }
+      else {
         linhas[j].push_back(linha[i]);
       }
     }
@@ -57,51 +61,55 @@ vector<string> leitura_arquivo() {
 
 void montaGrafo(Grafo &g) {
 
-  int i,j,k;
+  int i, j, k;
   int vetor_creditos[MAX], dificuldadeAux, vetor_posicoes[MAX];
   vector<string> linhas(MAX);
   linhas = leitura_arquivo();
   string auxiliar, ch;
 
-  for (i=0;i<MAX;i++) {
-    for (j=0;linhas[i][j] != ' ';j++) {
+  for (i = 0; i < MAX; i++) {
+    for (j = 0; linhas[i][j] != ' '; j++) {
       auxiliar.push_back(linhas[i][j]);
     }
-    k=j;
+
+    k = j;
     while (!(linhas[i][k] >= '0' && linhas[i][k] <= '9')) { // Procura a posicao do proximo numero
       k++;
     }
     vetor_posicoes[i] = k; // E coloca no vetor a posicao do proximo numero
 
-    adicionaVertice(g,auxiliar,i);
+    adicionaVertice(g, auxiliar, i);
     auxiliar.clear();
   }
-  for (i=0;i<MAX;i++) {
+
+  for (i = 0; i < MAX; i++) {
     ch = linhas[i][vetor_posicoes[i]];
     vetor_creditos[i] = atoi(ch.c_str());
     vetor_posicoes[i]++; // Avancamos o vetor de posicoes em 1, para ler a partir da proxima posicao
   }
+
   ch.clear();
-  for (i=0;i<MAX;i++) {
-    for (j=vetor_posicoes[i];j<(int)linhas[i].size();j++) {
+  for (i = 0; i < MAX; i++) {
+    for (j = vetor_posicoes[i]; j < (int)linhas[i].size(); j++) {
       if (linhas[i][j] >= '0' && linhas[i][j] <= '9') {
         while (linhas[i][j] >= '0' && linhas[i][j] <= '9') {
           auxiliar.push_back(linhas[i][j]);
           j++;
         }
+
         while (!(linhas[i][j] >= '0' && linhas[i][j] <= '9')) {
           j++;
         }
+
         ch = linhas[i][j];
         dificuldadeAux = atoi(ch.c_str());
-        adicionaAresta(g,auxiliar,dificuldadeAux,i,vetor_creditos[i]);
+        adicionaAresta(g, auxiliar, dificuldadeAux, i, vetor_creditos[i]);
       }
       auxiliar.clear();
       ch.clear();
     }
   }
 }
-
 
 void adicionaVertice(Grafo &g, string ch, int i) { //Funcao que adiciona um vertice a lista de vertices
   g[i].codigo = atoi(ch.c_str());
@@ -119,11 +127,12 @@ void mostra_grafo(Grafo g) { //Funcao que recebe um grafo e o imprime na tela
   int i,j;
   for (i = 0; i < (int)g.size(); i++) {
     cout << g[i].codigo << " -> ";
-    for (j=0;j<(int)g[i].disciplinas.size();j++) {
+    for (j = 0; j < (int)g[i].disciplinas.size();j++) {
       if (j != (int)g[i].disciplinas.size() - 1) {
-        cout << " ( " << g[i].disciplinas[j].first << "," << g[i].disciplinas[j].second << " )" << " -> ";
-      }else {
-        cout << " ( " << g[i].disciplinas[j].first << "," << g[i].disciplinas[j].second << " )";
+        cout << "(" << g[i].disciplinas[j].first << ", " << g[i].disciplinas[j].second << ")" << " -> ";
+      }
+      else {
+        cout << "(" << g[i].disciplinas[j].first << ", " << g[i].disciplinas[j].second << ")";
       }
     }
     cout << endl;
@@ -204,11 +213,15 @@ vector<int> dificuldade_de_finalizar(Grafo ordem) {
     finalizar[i] = calculaDificuldade(ordem, ordem[i], finalizar);
   }
 
+  return finalizar;
+}
+
+void printa_dificuldade(Grafo ordem, vector<int> finalizar) {
+  unsigned int i;
+
   for (i = 0; i < finalizar.size(); i++) {
     cout << ordem[i].codigo << " Dificuldade associada: " << finalizar[i] << " " << endl;
   }
-
-  return finalizar;
 }
 
 Grafo caminho_critico(Grafo ordem, vector<int> finalizar) {
@@ -232,7 +245,6 @@ Grafo caminho_critico(Grafo ordem, vector<int> finalizar) {
 
   vertice = ordem[index];
   codigo = vertice.codigo;
-
   caminho.push_back(vertice);
 
   for (i = 0; i < ordem.size(); i++) {
@@ -264,16 +276,15 @@ int main () {
 
   montaGrafo(g);
   cout << "===== GRAFO MONTADO =====" << endl << endl;
-
   mostra_grafo(g);
 
   ordemTopologica = ordenacao_topologica(g);
-
   cout << endl << "===== ORDENACAO TOPOLOGICA =====" << endl << endl;
   mostra_caminho(ordemTopologica);
 
-  cout << endl << "===== DIFICULDADE ASSOCIADA A CADA VERTICE =====" << endl << endl;
   finalizar = dificuldade_de_finalizar(ordemTopologica);
+  cout << endl << "===== DIFICULDADE ASSOCIADA A CADA VERTICE =====" << endl << endl;
+  printa_dificuldade(ordemTopologica, finalizar);
 
   caminhoCritico = caminho_critico(ordemTopologica, finalizar);
   cout << endl << "===== CAMINHO CRITICO =====" << endl << endl;
