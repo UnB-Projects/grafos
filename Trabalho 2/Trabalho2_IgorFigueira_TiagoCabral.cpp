@@ -70,7 +70,7 @@ int main () {
 vector<string> leitura_arquivo() {
   vector<string> linhas(MAX);
   string linha;
-  ifstream input( "file.txt" );
+  ifstream input( "disciplinas_tag20172.txt" );
   int i, j = 0;
   while (getline( input, linha )) { // Pega uma linha inteira do arquivo e coloca na string linha
     for (i = 0; i < (int)linha.size(); i++) {
