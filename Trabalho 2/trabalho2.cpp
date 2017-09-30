@@ -122,7 +122,7 @@ void adicionaAresta(Grafo &g, string auxiliar, int dificuldadeAux, int i, int cr
 void mostra_grafo(Grafo g) { //Funcao que recebe um grafo e o imprime na tela
 
   int i,j;
-  for (i = 0; i < SizeGraph; i++) {
+  for (i = 0; i < (int)g.size(); i++) {
     cout << g[i].codigo << " -> ";
     for (j=0;j<(int)g[i].disciplinas.size();j++) {
       if (j != (int)g[i].disciplinas.size() - 1) {
@@ -146,16 +146,13 @@ bool existe_na_lista(vector<Aresta> lista, int codigo) {
   return false;
 }
 
-void ordenacao_topologica(Grafo g) {
+Grafo ordenacao_topologica(Grafo g) {
   int i, j;
-  int codigo;
-  unsigned int tamanho_inicial; 
+  int codigo; 
   bool flag;
-  vector<int> ordem;
+  Grafo ordem;
 
-  tamanho_inicial = (int)g.size();
-
-  while (ordem.size() != tamanho_inicial) {
+  while (g.size() > 0) {
     for (i = 0; i < (int)g.size(); i++) {
       codigo = g[i].codigo;
       flag = false;
@@ -168,29 +165,118 @@ void ordenacao_topologica(Grafo g) {
       }
 
       if (flag == false) {
-        cout << g.size() << endl;
-        ordem.push_back(codigo);
+        ordem.push_back(g[i]);
         g.erase(g.begin() + i);
         i--;
       }
     }
   }
+  return ordem;
+}
 
-  for (i = 0; i < (int)ordem.size(); i++) {
-    cout << ordem[i] << " -> ";
+void mostra_caminho(Grafo grafo) { 
+  int i;
+
+  for (i = 0; i < (int)grafo.size(); i++) {
+    if (i > 0) {
+      cout << " -> ";
+    }
+    cout << grafo[i].codigo;
   }
   cout << endl;
 }
 
-int main () {
+int calculaDificuldade(Grafo ordem, Vertice vertice, vector<int> finalizar) {
+  unsigned int i, j;
+  int codigo = vertice.codigo;
+  int dificuldade = 0;
 
+  for (i = 0; i < ordem.size(); i++) {
+    for (j = 0; j < ordem[i].disciplinas.size(); j++) {
+      if (ordem[i].disciplinas[j].first == codigo) {
+        dificuldade = max(dificuldade, finalizar[i] + ordem[i].disciplinas[j].second);
+      }
+    }
+  }
+  return dificuldade;
+}
+
+Grafo encontra_caminho_critico(Grafo ordem, Vertice vertice, vector<int> finalizar) {
+  unsigned int i, j;
+  int codigo = vertice.codigo;
+  int dificuldade;
+  int maior;
+  bool flag;
+  Grafo caminho;
+
+  caminho.push_back(vertice);
+
+  for (i = 0; i < ordem.size(); i++) {
+    dificuldade = -1;
+    flag = false;
+    for (j = 0; j < ordem[i].disciplinas.size(); j++) {
+      if (ordem[i].disciplinas[j].first == codigo && finalizar[i] > dificuldade) {
+        maior = i;
+        dificuldade = finalizar[i];
+        flag = true;
+      }
+    }
+
+    if (flag == true) {
+      caminho.insert(caminho.begin(), ordem[maior]);
+      codigo = ordem[maior].codigo;
+      i = -1;
+    }
+  }
+
+  return caminho;
+}
+
+Grafo caminho_critico(Grafo ordem) {
+  vector<int> finalizar(MAX);
+  unsigned int i;
+  int maior = 0;
+  int index;
+  Grafo caminhoCritico;
+
+  for (i = 0; i < finalizar.size(); i++) {
+    finalizar[i] = calculaDificuldade(ordem, ordem[i], finalizar);
+  }
+
+  for (i = 0; i < finalizar.size(); i++) {
+    cout << ordem[i].codigo << " Dificuldade associada: " << finalizar[i] << " " << endl;
+  }
+
+  for (i = 0; i < finalizar.size(); i++) {
+    if (finalizar[i] > maior) {
+      maior = finalizar[i];
+      index = i;
+    }
+  }
+
+  caminhoCritico = encontra_caminho_critico(ordem, ordem[index], finalizar);
+
+  return caminhoCritico;
+}
+
+int main () {
   Grafo g(MAX);
+  Grafo ordemTopologica;
+  Grafo caminhoCritico;
 
   montaGrafo(g);
+  cout << "===== GRAFO MONTADO =====" << endl << endl;
 
   mostra_grafo(g);
 
-  ordenacao_topologica(g);
+  ordemTopologica = ordenacao_topologica(g);
+
+  cout << endl << "===== ORDENACAO TOPOLOGICA =====" << endl << endl;
+  mostra_caminho(ordemTopologica);
+
+  caminhoCritico = caminho_critico(ordemTopologica);
+  cout << endl << "===== CAMINHO CRITICO =====" << endl << endl;
+  mostra_caminho(caminhoCritico);
 
   return 0;
 }
